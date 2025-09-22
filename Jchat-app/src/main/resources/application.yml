@@ -1,0 +1,5 @@
+spring:
+  config:
+    name: Jchat-app
+  profiles:
+    active: dev
