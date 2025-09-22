@@ -1,4 +1,4 @@
-package top.kimwonjoon.config;
+package top.kimwonjoon.config.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

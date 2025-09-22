@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import top.kimwonjoon.config.properties.ThreadPoolConfigProperties;
 
 import java.util.concurrent.*;
 
