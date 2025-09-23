@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI语音聊天室</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🎤 AI语音聊天室</h1>
+        <div class="user-info">
+            <input type="text" id="username" placeholder="输入用户名" />
+            <input type="text" id="roomId" placeholder="房间ID" value="general" />
+            <button id="connectBtn">连接</button>
+            <button id="disconnectBtn" disabled>断开</button>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+
+        <div class="controls">
+            <div class="voice-controls">
+                <button id="recordBtn" disabled>🎤 开始录音</button>
+                <button id="stopBtn" disabled>⏹️ 停止录音</button>
+                <div class="recording-status" id="recordingStatus"></div>
+            </div>
+
+            <div class="text-controls">
+                <input type="text" id="messageInput" placeholder="输入文本消息..." disabled />
+                <button id="sendBtn" disabled>发送</button>
+            </div>
+
+            <div class="audio-controls">
+                <label>AI语音:</label>
+                <select id="voiceSelect">
+                    <option value="alloy">Alloy</option>
+                    <option value="echo">Echo</option>
+                    <option value="fable">Fable</option>
+                    <option value="onyx">Onyx</option>
+                    <option value="nova">Nova</option>
+                    <option value="shimmer">Shimmer</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

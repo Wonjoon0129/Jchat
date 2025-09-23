@@ -1,4 +1,4 @@
-package top.kimwonjoon.domain.chat.service.armory.factory.element;
+package top.kimwonjoon.domain.chat.service.audio.util;
 
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
@@ -6,7 +6,8 @@ import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationR
 import com.alibaba.dashscope.common.MultiModalMessage;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.utils.JsonUtils;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class AudioUtil {
 
-    public String audioToText(String url)
+    public static String audioToText(String url)
             throws Exception {
 
         // 使用 DashScope 进行音频转文本

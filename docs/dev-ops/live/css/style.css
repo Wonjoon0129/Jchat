@@ -1,0 +1,259 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.user-info {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.user-info input {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.user-info button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background: #fff;
+    color: #4facfe;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.user-info button:hover:not(:disabled) {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+}
+
+.user-info button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.chat-container {
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    max-width: 80%;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.message.user {
+    background: #e3f2fd;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.message.ai {
+    background: #f3e5f5;
+    border-bottom-left-radius: 5px;
+}
+
+.message.transcription {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+}
+
+.message.system {
+    background: #e8f5e8;
+    text-align: center;
+    margin: 0 auto;
+    font-style: italic;
+}
+
+.message.error {
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+    color: #c62828;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.sender {
+    font-weight: bold;
+}
+
+.message-content {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.controls {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+}
+
+.voice-controls, .text-controls, .audio-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.voice-controls button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#recordBtn {
+    background: #4caf50;
+    color: white;
+}
+
+#recordBtn:hover:not(:disabled) {
+    background: #45a049;
+    transform: scale(1.05);
+}
+
+#stopBtn {
+    background: #f44336;
+    color: white;
+}
+
+#stopBtn:hover:not(:disabled) {
+    background: #da190b;
+    transform: scale(1.05);
+}
+
+.recording-status {
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 15px;
+}
+
+.recording-status.recording {
+    background: #ffebee;
+    color: #c62828;
+    animation: pulse 1s infinite;
+}
+
+.text-controls input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.text-controls button, .audio-controls select {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: #4facfe;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.text-controls button:hover:not(:disabled) {
+    background: #3d8bfe;
+    transform: translateY(-1px);
+}
+
+.audio-controls {
+    justify-content: center;
+}
+
+.audio-controls label {
+    font-weight: bold;
+    color: #666;
+}
+
+.audio-controls select {
+    background: white;
+    color: #333;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@media (max-width: 600px) {
+    .user-info {
+        flex-direction: column;
+    }
+
+    .voice-controls, .text-controls {
+        flex-direction: column;
+    }
+
+    .message {
+        max-width: 95%;
+    }
+}

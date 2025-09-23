@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>语音聊天控制面板</title>
+    <style>
+        .control-panel {
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            margin: 10px;
+        }
+        .mode-selector {
+            margin: 10px 0;
+        }
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .recording {
+            background: #ff4444;
+            color: white;
+        }
+        .idle {
+            background: #44ff44;
+        }
+        .vad-indicator {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .vad-level {
+            height: 100%;
+            background: #44ff44;
+            width: 0%;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+<div class="control-panel">
+    <h3>语音输入控制</h3>
+
+    <div class="mode-selector">
+        <label>控制模式:</label>
+        <select id="modeSelect">
+            <option value="VOICE_ACTIVATED">语音激活检测</option>
+            <option value="PUSH_TO_TALK">按键说话</option>
+            <option value="ALWAYS_ON">持续监听</option>
+        </select>
+    </div>
+
+    <div>
+        <button id="recordButton" class="button idle">开始录音</button>
+        <button id="resetButton" class="button">重置</button>
+    </div>
+
+    <div class="vad-indicator">
+        <div id="vadLevel" class="vad-level"></div>
+    </div>
+
+    <div>
+        <label>静音阈值:</label>
+        <input type="range" id="thresholdSlider" min="0" max="1" step="0.01" value="0.1">
+        <span id="thresholdValue">0.1</span>
+    </div>
+
+    <div id="status">状态: 等待连接...</div>
+</div>
+
+<script>
+    class VoiceControlPanel {
+        constructor() {
+            this.websocket = null;
+            this.isRecording = false;
+            this.currentMode = 'VOICE_ACTIVATED';
+            this.audioContext = null;
+            this.analyser = null;
+
+            this.initializeControls();
+        }
+
+        initializeControls() {
+            // 模式选择
+            document.getElementById('modeSelect').addEventListener('change', (e) => {
+                this.setControlMode(e.target.value);
+            });
+
+            // 录音按钮
+            document.getElementById('recordButton').addEventListener('click', () => {
+                this.toggleRecording();
+            });
+
+            // 阈值滑块
+            document.getElementById('thresholdSlider').addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                document.getElementById('thresholdValue').textContent = value.toFixed(2);
+                this.setSilenceThreshold(value);
+            });
+
+            // 重置按钮
+            document.getElementById('resetButton').addEventListener('click', () => {
+                this.sendControlCommand('RESET', '');
+            });
+        }
+
+        async connect() {
+            this.websocket = new WebSocket('ws://localhost:8080/voice-chat');
+            this.websocket.binaryType = 'arraybuffer';
+
+            this.websocket.onmessage = (event) => {
+                if (event.data instanceof ArrayBuffer) {
+                    this.handleAudioResponse(event.data);
+                } else {
+                    this.handleControlMessage(JSON.parse(event.data));
+                }
+            };
+
+            this.websocket.onopen = () => {
+                this.updateStatus('已连接');
+                this.initializeAudio();
+            };
+        }
+
+        setControlMode(mode) {
+            this.currentMode = mode;
+            this.sendControlCommand('SET_MODE', mode);
+
+            // 更新UI
+            if (mode === 'PUSH_TO_TALK') {
+                document.getElementById('recordButton').style.display = 'block';
+            } else {
+                document.getElementById('recordButton').style.display = 'none';
+            }
+        }
+
+        setSilenceThreshold(threshold) {
+            this.sendControlCommand('SET_THRESHOLD', threshold.toString());
+        }
+
+        toggleRecording() {
+            if (this.isRecording) {
+                this.stopRecording();
+            } else {
+                this.startRecording();
+            }
+        }
+
+        startRecording() {
+            this.isRecording = true;
+            this.sendControlCommand('START_RECORDING', '');
+            document.getElementById('recordButton').textContent = '停止录音';
+            document.getElementById('recordButton').className = 'button recording';
+        }
+
+        stopRecording() {
+            this.isRecording = false;
+            this.sendControlCommand('STOP_RECORDING', '');
+            document.getElementById('recordButton').textContent = '开始录音';
+            document.getElementById('recordButton').className = 'button idle';
+        }
+
+        sendControlCommand(type, data) {
+            if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+                const command = {
+                    type: type,
+                    data: data,
+                    timestamp: Date.now()
+                };
+                this.websocket.send(JSON.stringify(command));
+            }
+        }
+
+        handleControlMessage(message) {
+            switch (message.type) {
+                case 'RECORDING_STARTED':
+                    this.updateStatus('录音中...');
+                    break;
+                case 'RECORDING_STOPPED':
+                    this.updateStatus('录音停止');
+                    break;
+                case 'VOICE_ACTIVITY':
+                    this.updateVadIndicator(message.data.level);
+                    break;
+                case 'ERROR':
+                    console.error('控制错误:', message.message);
+                    break;
+            }
+        }
+
+        updateVadIndicator(level) {
+            const indicator = document.getElementById('vadLevel');
+            indicator.style.width = (level * 100) + '%';
+
+            // 根据级别改变颜色
+            if (level > 0.7) {
+                indicator.style.background = '#ff4444';
+            } else if (level > 0.3) {
+                indicator.style.background = '#ffaa00';
+            } else {
+                indicator.style.background = '#44ff44';
+            }
+        }
+
+        updateStatus(message) {
+            document.getElementById('status').textContent = '状态: ' + message;
+        }
+
+        // 音频处理和可视化代码...
+    }
+
+    // 初始化控制面板
+    const controlPanel = new VoiceControlPanel();
+    controlPanel.connect();
+</script>
+</body>
+</html>
