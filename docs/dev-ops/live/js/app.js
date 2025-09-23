@@ -5,7 +5,7 @@ class VoiceChatApp {
         this.audioChunks = [];
         this.isRecording = false;
         this.isConnected = false;
-        this.serverUrl = 'http://localhost:8080/j-chat'; // 明确指定后端服务器地址
+        this.serverUrl = 'http://localhost:8081/j-chat'; // 明确指定后端服务器地址
 
         this.initializeElements();
         this.setupEventListeners();
@@ -244,11 +244,9 @@ class VoiceChatApp {
 
     async playAudio(base64Audio, format) {
         try {
-            const audioData = this.base64ToArrayBuffer(base64Audio);
-            const audioBlob = new Blob([audioData], { type: `audio/${format}` });
-            const audioUrl = URL.createObjectURL(audioBlob);
 
-            const audio = new Audio(audioUrl);
+
+            const audio = new Audio(base64Audio);
             audio.play();
 
             audio.onended = () => {

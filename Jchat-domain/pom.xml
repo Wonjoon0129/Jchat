@@ -94,6 +94,13 @@
             <artifactId>redisson-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- MP3SPI for MP3 decoding -->
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>mp3spi</artifactId>
+            <version>1.9.5.4</version>
+        </dependency>
+
 
         <!-- Apache Commons IO -->
         <dependency>

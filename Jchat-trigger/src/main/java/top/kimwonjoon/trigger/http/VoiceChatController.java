@@ -8,17 +8,29 @@ package top.kimwonjoon.trigger.http;
  */
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 import top.kimwonjoon.api.dto.VoiceMessage;
 import top.kimwonjoon.domain.chat.service.chat.AiChatService;
 import top.kimwonjoon.domain.chat.service.audio.VoiceProcessingService;
 
 import java.security.Principal;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -78,13 +90,11 @@ public class VoiceChatController {
         try {
             // 1. 转录语音为文本
             String transcription = voiceProcessingService.transcribeAudio(
-                    message.getAudioData(),
-                    message.getAudioFormat()
+                    message.getAudioData()
             );
 
             log.info("语音转录结果: {}", transcription);
-
-            // 2. 显示语音输入
+            //显示语音输入
             VoiceMessage transcriptionMessage = new VoiceMessage(
                     VoiceMessage.MessageType.TRANSCRIPTION,
                     message.getSender(),
@@ -97,16 +107,40 @@ public class VoiceChatController {
                     transcriptionMessage
             );
 
-            // 3. 生成AI回复
-            String aiResponse ="测试";
-//                    aiChatService.generateResponse(transcription, "");
 
-            log.info("AI回复: {}", aiResponse);
+            //测试
+            OpenAiApi openAiApi = OpenAiApi.builder()
+                    .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+                    .apiKey("sk-854c7cdf301f41d79d3eaef3bf23cef0")
+                    .completionsPath("/chat/completions")
+                    .embeddingsPath("/embeddings")
+                    .build();
 
-            // 4. 将AI回复转换为语音
-            byte[] audioResponse=new byte[]{1,2,3,4,5,6,7,8,9,10};
-//                    = voiceProcessingService.textToSpeech(aiResponse, "alloy");
-            String base64Audio = Base64.getEncoder().encodeToString(audioResponse);
+            // 初始化 ChatModel
+            ChatModel chatModel = OpenAiChatModel.builder()
+                    .openAiApi(openAiApi)
+                    .defaultOptions(OpenAiChatOptions.builder()
+                            .model("qwen-plus")
+                            .build())
+                    .build();
+            ChatClient chatClient = ChatClient.builder(chatModel)
+                    .defaultAdvisors() // 添加默认advisor以避免"No StreamAdvisors available to execute"错误
+                    .build();
+
+            String text = chatClient.prompt(Prompt.builder()
+                    .messages(new UserMessage(transcription))
+                    .build()).call().content();
+            log.info("AI回复: {}", text);
+            // 先缓存流，以便可以多次使用
+
+
+
+
+            // 2. 生成AI回复
+            String aiResponse =text;
+
+            // 3. 将AI回复转换为语音
+            String audioResponse = voiceProcessingService.textToSpeech(text, "alloy");
 
             // 5. 发送AI语音回复
             VoiceMessage aiVoiceMessage = new VoiceMessage(
@@ -114,7 +148,7 @@ public class VoiceChatController {
                     "AI Assistant",
                     aiResponse
             );
-            aiVoiceMessage.setAudioData(base64Audio);
+            aiVoiceMessage.setAudioData(audioResponse);
             aiVoiceMessage.setAudioFormat("mp3");
             aiVoiceMessage.setRoomId(message.getRoomId());
 
@@ -144,7 +178,7 @@ public class VoiceChatController {
             String aiResponse = aiChatService.generateResponse(message.getContent(), "");
 
             // 3. 将AI回复转换为语音
-            byte[] audioResponse = voiceProcessingService.textToSpeech(aiResponse, "alloy");
+            byte[] audioResponse = new byte[0]; // TODO: 实现文本转语音功能
             String base64Audio = Base64.getEncoder().encodeToString(audioResponse);
 
             // 4. 发送AI语音回复
