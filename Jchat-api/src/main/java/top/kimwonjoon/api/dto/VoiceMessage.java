@@ -22,10 +22,12 @@ public class VoiceMessage {
 
     private MessageType type;
     private String sender;
+    private String userId;
     private String content;
-    private String audioData;    // Base64编码的音频数据
-    private String audioFormat;  // 音频格式 (e.g., "wav", "mp3")
-    private String roomId;       // 房间ID
+    private String audioData;
+    private String audioFormat;
+    private String roomId;
+    private String avatarId;
 
     public VoiceMessage(MessageType type, String sender, String content) {
         this.type = type;

@@ -5,7 +5,7 @@ class VoiceChatApp {
         this.audioChunks = [];
         this.isRecording = false;
         this.isConnected = false;
-        this.serverUrl = 'http://localhost:8081/j-chat'; // 明确指定后端服务器地址
+        this.serverUrl = 'http://localhost:8082/j-chat'; // 明确指定后端服务器地址
 
         this.initializeElements();
         this.setupEventListeners();

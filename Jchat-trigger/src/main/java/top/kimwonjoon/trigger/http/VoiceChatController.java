@@ -7,35 +7,27 @@ package top.kimwonjoon.trigger.http;
  * @Date 2025/9/23 09:20
  */
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import reactor.core.publisher.Flux;
 import top.kimwonjoon.api.dto.VoiceMessage;
 import top.kimwonjoon.domain.chat.service.chat.AiChatService;
-import top.kimwonjoon.domain.chat.service.audio.VoiceProcessingService;
+import top.kimwonjoon.domain.chat.service.preheat.AiAgentPreheatService;
+import top.kimwonjoon.domain.chat.service.voice.VoiceProcessingService;
 
-import java.security.Principal;
 import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Controller
 public class VoiceChatController {
+
+    @Resource
+    private AiAgentPreheatService aiAgentPreheatService;
 
 
     private final SimpMessagingTemplate messagingTemplate;
@@ -54,11 +46,9 @@ public class VoiceChatController {
      * 处理语音消息
      */
     @MessageMapping("/voice")
-    public void handleVoiceMessage(@Payload VoiceMessage message,
-                                   SimpMessageHeaderAccessor headerAccessor,
-                                   Principal principal) {
+    public void handleVoiceMessage(@Payload VoiceMessage message) {
 
-        String username = principal != null ? principal.getName() : "Anonymous";
+        String username = message.getSender() != null ? message.getSender() : "user";
         message.setSender(username);
 
         log.info("收到来自用户 {} 的语音消息", username);
@@ -108,36 +98,9 @@ public class VoiceChatController {
             );
 
 
-            //测试
-            OpenAiApi openAiApi = OpenAiApi.builder()
-                    .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
-                    .apiKey("sk-854c7cdf301f41d79d3eaef3bf23cef0")
-                    .completionsPath("/chat/completions")
-                    .embeddingsPath("/embeddings")
-                    .build();
-
-            // 初始化 ChatModel
-            ChatModel chatModel = OpenAiChatModel.builder()
-                    .openAiApi(openAiApi)
-                    .defaultOptions(OpenAiChatOptions.builder()
-                            .model("qwen-plus")
-                            .build())
-                    .build();
-            ChatClient chatClient = ChatClient.builder(chatModel)
-                    .defaultAdvisors() // 添加默认advisor以避免"No StreamAdvisors available to execute"错误
-                    .build();
-
-            String text = chatClient.prompt(Prompt.builder()
-                    .messages(new UserMessage(transcription))
-                    .build()).call().content();
-            log.info("AI回复: {}", text);
-            // 先缓存流，以便可以多次使用
-
-
-
-
             // 2. 生成AI回复
-            String aiResponse =text;
+            String text="你好";
+
 
             // 3. 将AI回复转换为语音
             String audioResponse = voiceProcessingService.textToSpeech(text, "alloy");
@@ -146,7 +109,7 @@ public class VoiceChatController {
             VoiceMessage aiVoiceMessage = new VoiceMessage(
                     VoiceMessage.MessageType.AI_RESPONSE,
                     "AI Assistant",
-                    aiResponse
+                    text
             );
             aiVoiceMessage.setAudioData(audioResponse);
             aiVoiceMessage.setAudioFormat("mp3");
@@ -223,8 +186,14 @@ public class VoiceChatController {
      * 处理用户加入房间
      */
     @MessageMapping("/join")
-    public void handleUserJoin(@Payload VoiceMessage message, Principal principal) {
-        String username = principal != null ? principal.getName() : "Anonymous";
+    public void handleUserJoin(@Payload VoiceMessage message) {
+        try {
+            aiAgentPreheatService.preheat(Integer.valueOf(message.getRoomId()));
+        } catch (Exception e) {
+            log.info("加载 avatar 失败");
+            throw new RuntimeException(e);
+        }
+        String username = message.getSender() != null ? message.getSender() : "user";
 
         VoiceMessage joinMessage = new VoiceMessage(
                 VoiceMessage.MessageType.USER_JOIN,

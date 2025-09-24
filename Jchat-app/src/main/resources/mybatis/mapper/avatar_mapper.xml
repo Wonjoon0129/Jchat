@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.kimwonjoon.infrastructure.dao.IAvatarDao">
+
+    <resultMap id="AvatarMap" type="top.kimwonjoon.infrastructure.dao.po.Avatar">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="category" property="category"/>
+        <result column="system_prompt" property="systemPrompt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="modelId" property="modelId"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="top.kimwonjoon.infrastructure.dao.po.Avatar">
+        INSERT INTO avatar(name, description, category, system_prompt, modelId, create_time, update_time)
+        VALUES(#{name}, #{description}, #{category}, #{systemPrompt},#{modelId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="top.kimwonjoon.infrastructure.dao.po.Avatar">
+        UPDATE avatar SET 
+            name = #{name},
+            description = #{description},
+            category = #{category},
+            system_prompt = #{systemPrompt},
+            update_time = #{updateTime},
+            create_time = #{createTime},
+            modelId=#{modelId}
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryById" parameterType="java.lang.Integer" resultMap="AvatarMap">
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        FROM avatar
+        WHERE id = #{id}
+    </select>
+
+    <select id="queryByCategory" parameterType="java.lang.String" resultMap="AvatarMap">
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        FROM avatar
+        WHERE category = #{category}
+    </select>
+
+    <select id="queryAll" resultMap="AvatarMap">
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        FROM avatar
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        DELETE FROM avatar WHERE id = #{id}
+    </delete>
+
+</mapper>

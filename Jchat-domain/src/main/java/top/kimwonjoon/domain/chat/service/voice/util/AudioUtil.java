@@ -1,4 +1,4 @@
-package top.kimwonjoon.domain.chat.service.audio.util;
+package top.kimwonjoon.domain.chat.service.voice.util;
 
 import com.alibaba.dashscope.aigc.multimodalconversation.AudioParameters;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
@@ -10,14 +10,8 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.exception.UploadFileException;
 import com.alibaba.dashscope.utils.JsonUtils;
 import com.drew.metadata.mp3.Mp3Reader;
-import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.LineUnavailableException;
-import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 @Slf4j

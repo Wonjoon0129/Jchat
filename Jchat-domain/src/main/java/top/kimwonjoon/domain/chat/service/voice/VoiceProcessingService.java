@@ -1,4 +1,4 @@
-package top.kimwonjoon.domain.chat.service.audio;
+package top.kimwonjoon.domain.chat.service.voice;
 
 /**
  * @ClassName VoiceProcessingService
@@ -7,18 +7,14 @@ package top.kimwonjoon.domain.chat.service.audio;
  * @Date 2025/9/23 09:17
  */
 
-import com.alibaba.dashscope.audio.tts.SpeechSynthesisResult;
-import com.alibaba.dashscope.common.ResultCallback;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PutObjectResult;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import top.kimwonjoon.domain.chat.service.audio.util.AudioUtil;
+import top.kimwonjoon.domain.chat.service.voice.util.AudioUtil;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
