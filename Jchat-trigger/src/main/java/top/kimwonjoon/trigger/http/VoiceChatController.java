@@ -97,19 +97,17 @@ public class VoiceChatController {
                     transcriptionMessage
             );
 
-
             // 2. 生成AI回复
-            String text="你好";
-
+            String aiResponse = aiChatService.generateResponse(transcription, Integer.valueOf(message.getAvatarId()),message.getRoomId() );
 
             // 3. 将AI回复转换为语音
-            String audioResponse = voiceProcessingService.textToSpeech(text, "alloy");
+            String audioResponse = voiceProcessingService.textToSpeech(aiResponse, "alloy");
 
             // 5. 发送AI语音回复
             VoiceMessage aiVoiceMessage = new VoiceMessage(
                     VoiceMessage.MessageType.AI_RESPONSE,
                     "AI Assistant",
-                    text
+                    aiResponse
             );
             aiVoiceMessage.setAudioData(audioResponse);
             aiVoiceMessage.setAudioFormat("mp3");
@@ -138,11 +136,11 @@ public class VoiceChatController {
             );
 
             // 2. 生成AI回复
-            String aiResponse = aiChatService.generateResponse(message.getContent(), "");
+            String aiResponse = aiChatService.generateResponse(message.getContent(), Integer.valueOf(message.getAvatarId()),message.getRoomId() );
 
             // 3. 将AI回复转换为语音
-            byte[] audioResponse = new byte[0]; // TODO: 实现文本转语音功能
-            String base64Audio = Base64.getEncoder().encodeToString(audioResponse);
+            String audioResponse = voiceProcessingService.textToSpeech(aiResponse, "alloy");
+
 
             // 4. 发送AI语音回复
             VoiceMessage aiVoiceMessage = new VoiceMessage(
@@ -150,7 +148,7 @@ public class VoiceChatController {
                     "AI Assistant",
                     aiResponse
             );
-            aiVoiceMessage.setAudioData(base64Audio);
+            aiVoiceMessage.setAudioData(audioResponse);
             aiVoiceMessage.setAudioFormat("mp3");
             aiVoiceMessage.setRoomId(message.getRoomId());
 
@@ -188,7 +186,7 @@ public class VoiceChatController {
     @MessageMapping("/join")
     public void handleUserJoin(@Payload VoiceMessage message) {
         try {
-            aiAgentPreheatService.preheat(Integer.valueOf(message.getRoomId()));
+            aiAgentPreheatService.preheat(Integer.valueOf(message.getAvatarId()));
         } catch (Exception e) {
             log.info("加载 avatar 失败");
             throw new RuntimeException(e);

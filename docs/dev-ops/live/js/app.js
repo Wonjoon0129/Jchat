@@ -14,6 +14,7 @@ class VoiceChatApp {
 
     initializeElements() {
         this.elements = {
+            avatarId: document.getElementById('avatarId'),
             username: document.getElementById('username'),
             roomId: document.getElementById('roomId'),
             connectBtn: document.getElementById('connectBtn'),
@@ -91,7 +92,9 @@ class VoiceChatApp {
             // 发送加入房间消息
             this.stompClient.send('/app/join', {}, JSON.stringify({
                 type: 'USER_JOIN',
-                roomId: roomId
+                roomId: roomId,
+                avatarId: this.elements.avatarId.value.trim() || null
+
             }));
 
             this.addMessage('系统', `已连接到房间: ${roomId} (服务器: ${this.serverUrl})`, 'system');
@@ -176,12 +179,13 @@ class VoiceChatApp {
                 type: 'VOICE_DATA',
                 audioData: base64Audio,
                 audioFormat: 'webm',
-                roomId: this.elements.roomId.value.trim()
+                roomId: this.elements.roomId.value.trim(),
+                avatarId: this.elements.avatarId.value.trim() || null
+
             };
 
             console.log('发送语音消息到服务器:', this.serverUrl);
             this.stompClient.send('/app/voice', {}, JSON.stringify(message));
-            this.addMessage('你', '🎤 发送了语音消息', 'user');
 
         } catch (error) {
             console.error('处理录音失败:', error);
@@ -201,7 +205,8 @@ class VoiceChatApp {
         const message = {
             type: 'TEXT_MESSAGE',
             content: content,
-            roomId: this.elements.roomId.value.trim()
+            roomId: this.elements.roomId.value.trim(),
+            avatarId: this.elements.avatarId.value.trim() || null
         };
 
         console.log('发送文本消息到服务器:', this.serverUrl);

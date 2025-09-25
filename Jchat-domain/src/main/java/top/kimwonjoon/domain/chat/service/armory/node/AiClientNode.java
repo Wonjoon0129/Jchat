@@ -61,28 +61,8 @@ public class AiClientNode extends AbstractArmorySupport {
 
         // 3. ToolCallbackProvider
         List<McpSyncClient> mcpSyncClients = new ArrayList<>();
-        String json="{\"stdio\": {\n" +
-                "    \"gradio\": {\n" +
-                "      \"args\": [\n" +
-                "        \"mcp-remote\",\n" +
-                "        \"https://phoenixdna-sogou-search.ms.show/gradio_api/mcp/sse\",\n" +
-                "        \"--transport\",\n" +
-                "        \"sse-only\"\n" +
-                "      ],\n" +
-                "      \"command\": \"npx\"\n" +
-                "    }\n" +
-                "}\n" +
-                "}";
-        TransportConfigStdio transportConfigStdio= JsonUtils.fromJson(json, TransportConfigStdio.class);
-        Map<String, TransportConfigStdio.Stdio> stdioMap = transportConfigStdio.getStdio();
-        TransportConfigStdio.Stdio stdio = stdioMap.get("gradio");
-        // https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
-        var stdioParams = ServerParameters.builder(stdio.getCommand())
-                .args()
-                .build();
-        var mcpClient = McpClient.sync(new StdioClientTransport(stdioParams))
-                .requestTimeout(Duration.ofSeconds(180)).build();
-        mcpSyncClients.add(mcpClient);
+        McpSyncClient mcpSyncClient = getBean(AiAgentEnumVO.AI_CLIENT_TOOL_MCP.getBeanNameTag() + 1);
+        mcpSyncClients.add(mcpSyncClient);
 
 
         // 4. Advisor
@@ -93,11 +73,11 @@ public class AiClientNode extends AbstractArmorySupport {
                 .build();
         advisors.add(memoryAdvisor);
         //Rag
-        RagQueryTransformer ragQueryTransformer= new RagQueryTransformer("question_answer_context",chatModel);
-        RagAnswerAdvisor ragAnswerAdvisor = new RagAnswerAdvisor(vectorStore, SearchRequest.builder()
-                .topK(4)
-                .build(), ragQueryTransformer);
-        advisors.add(ragAnswerAdvisor);
+//        RagQueryTransformer ragQueryTransformer= new RagQueryTransformer("question_answer_context",chatModel);
+//        RagAnswerAdvisor ragAnswerAdvisor = new RagAnswerAdvisor(vectorStore, SearchRequest.builder()
+//                .topK(4)
+//                .build(), ragQueryTransformer);
+//        advisors.add(ragAnswerAdvisor);
 
         Advisor[] advisorArray = advisors.toArray(new Advisor[]{});
 
@@ -108,7 +88,8 @@ public class AiClientNode extends AbstractArmorySupport {
                 .defaultAdvisors(advisorArray)
                 .build();
 
-            registerBean(beanName(Long.valueOf(avatarVO.getId())), ChatClient.class, chatClient);
+        registerBean(beanName(Long.valueOf(avatarVO.getId())), ChatClient.class, chatClient);
+            log.info("Ai Agent 构建完成 {}", beanName(Long.valueOf(avatarVO.getId())));
 
 
         return router(avatarId, dynamicContext);

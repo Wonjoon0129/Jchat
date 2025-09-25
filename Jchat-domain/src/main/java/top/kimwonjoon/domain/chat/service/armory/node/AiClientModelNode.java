@@ -80,18 +80,15 @@ public class AiClientModelNode extends AbstractArmorySupport {
      */
     public ChatModel createOpenAiChatModel(ModelVO modelVO) {
         OpenAiApi openAiApi = OpenAiApi.builder()
-                        .baseUrl(modelVO.getBaseUrl())
-                        .apiKey(modelVO.getApiKey())
-                        .completionsPath(modelVO.getCompletionsPath())
-                        .build();
-        List<McpSyncClient> mcpSyncClients = new ArrayList<>();
-        // 仅在需要时添加MCP客户端，暂时注释掉可能引起问题的代码
-        /*
-        HttpClientSseClientTransport sseClientTransport = HttpClientSseClientTransport.builder("http://appbuilder.baidu.com/v2/ai_search/mcp").sseEndpoint("/sse?api_key=bce-v3/ALTAK-WrLJzo59tSiLjxyaPdwWp/2a1d2fd41f6f1cfa37a257fbc5be78a4d9513bd3").build();
-        McpSyncClient mcpSyncClient = McpClient.sync(sseClientTransport).requestTimeout(Duration.ofMinutes(150)).build();
-        mcpSyncClients.add(mcpSyncClient);
-        */
+                .baseUrl(modelVO.getBaseUrl())
+                .apiKey(modelVO.getApiKey())
+                .completionsPath(modelVO.getCompletionsPath())
+                .embeddingsPath("/embeddings")
+                .build();
 
+        List<McpSyncClient> mcpSyncClients = new ArrayList<>();
+        McpSyncClient mcpSyncClient = getBean(AiAgentEnumVO.AI_CLIENT_TOOL_MCP.getBeanNameTag() + 1);
+        mcpSyncClients.add(mcpSyncClient);
         // 构建OpenAiChatModelz
         return OpenAiChatModel.builder()
                         .openAiApi(openAiApi)

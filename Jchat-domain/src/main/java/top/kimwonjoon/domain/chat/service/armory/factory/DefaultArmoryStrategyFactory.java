@@ -39,17 +39,10 @@ public class DefaultArmoryStrategyFactory {
     public StrategyHandler<Integer, DynamicContext, String> strategyHandler() {
         return rootNode;
     }
-    public ChatClient chatClient(Long clientId) {
-        return (ChatClient) applicationContext.getBean(AiAgentEnumVO.CHAT_CLIENT.getBeanNameTag() + clientId);
+    public ChatClient chatClient(Integer avatarId) {
+        return (ChatClient) applicationContext.getBean(AiAgentEnumVO.CHAT_CLIENT.getBeanNameTag() + avatarId);
     }
 
-    public ChatModel chatModel(Long modelId) {
-        return (ChatModel) applicationContext.getBean(AiAgentEnumVO.AI_CLIENT_MODEL.getBeanNameTag() + modelId);
-    }
-
-    public EmbeddingModel embeddingModel(Long modelId) {
-        return (EmbeddingModel) applicationContext.getBean(AiAgentEnumVO.AI_CLIENT_EMBEDDING_MODEL.getBeanNameTag() + modelId);
-    }
 
 
     @Data
