@@ -6,13 +6,13 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
     min-height: 100vh;
     padding: 20px;
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1500px;
     margin: 0 auto;
     background: white;
     border-radius: 15px;
@@ -21,7 +21,7 @@ body {
 }
 
 .header {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #0b4f59 0%, #ffffff 100%);
     color: white;
     padding: 20px;
     text-align: center;
@@ -51,7 +51,7 @@ body {
     border: none;
     border-radius: 5px;
     background: #fff;
-    color: #4facfe;
+    color: #092c49;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
@@ -92,10 +92,14 @@ body {
     background: #e3f2fd;
     margin-left: auto;
     border-bottom-right-radius: 5px;
+    /* 添加以下样式确保消息靠右显示 */
+    margin-right: 0;
+    float: right;
+    clear: both;
 }
 
 .message.ai {
-    background: #f3e5f5;
+    background: rgba(28, 223, 19, 0.44);
     border-bottom-left-radius: 5px;
 }
 
@@ -215,17 +219,35 @@ body {
 }
 
 .audio-controls {
-    justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .audio-controls label {
     font-weight: bold;
-    color: #666;
 }
 
 .audio-controls select {
-    background: white;
-    color: #333;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.audio-controls button {
+    padding: 5px 15px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.audio-controls button:hover {
+    background: #cc3333;
 }
 
 button:disabled {

@@ -43,10 +43,6 @@
         </dependency>
         <dependency>
             <groupId>top.kimwonjoon</groupId>
-            <artifactId>Jchat-types</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.kimwonjoon</groupId>
             <artifactId>Jchat-domain</artifactId>
         </dependency>
         <dependency>

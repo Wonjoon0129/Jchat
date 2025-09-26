@@ -11,11 +11,12 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="modelId" property="modelId"/>
+        <result column="voice" property="voice"/>
     </resultMap>
 
     <insert id="insert" parameterType="top.kimwonjoon.infrastructure.dao.po.Avatar">
-        INSERT INTO avatar(name, description, category, system_prompt, modelId, create_time, update_time)
-        VALUES(#{name}, #{description}, #{category}, #{systemPrompt},#{modelId}, #{createTime}, #{updateTime})
+        INSERT INTO avatar(name, description, category, system_prompt, modelId,  voice,create_time, update_time)
+        VALUES(#{name}, #{description}, #{category}, #{systemPrompt},#{modelId}, voice,#{createTime}, #{updateTime})
     </insert>
 
     <update id="update" parameterType="top.kimwonjoon.infrastructure.dao.po.Avatar">
@@ -26,24 +27,25 @@
             system_prompt = #{systemPrompt},
             update_time = #{updateTime},
             create_time = #{createTime},
-            modelId=#{modelId}
+            modelId=#{modelId},
+            voice=#{voice}
         WHERE id = #{id}
     </update>
 
     <select id="queryById" parameterType="java.lang.Integer" resultMap="AvatarMap">
-        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId, voice
         FROM avatar
         WHERE id = #{id}
     </select>
 
     <select id="queryByCategory" parameterType="java.lang.String" resultMap="AvatarMap">
-        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId, voice
         FROM avatar
         WHERE category = #{category}
     </select>
 
     <select id="queryAll" resultMap="AvatarMap">
-        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId
+        SELECT id, name, description, category, system_prompt, create_time, update_time, modelId, voice
         FROM avatar
     </select>
 

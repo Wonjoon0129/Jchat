@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI语音聊天室</title>
+    <title>J-chat 角色扮演聊天助手</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
@@ -11,13 +11,15 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>🎤 AI语音聊天室</h1>
+        <h1>J-chat 角色扮演聊天助手</h1>
         <div class="user-info">
             <input type="text" id="username" placeholder="输入用户名" />
-            <input type="text" id="roomId" placeholder="房间ID" value="general" />
-            <input type="text" id="avatarId" placeholder="输入头像ID">
-            <button id="connectBtn">连接</button>
-            <button id="disconnectBtn" disabled>断开</button>
+            <input type="text" id="roomId" placeholder="房间ID将自动生成" readonly />
+            <select id="avatarId">
+                <option value="">选择角色...</option>
+            </select>
+            <button id="connectBtn">开始聊天</button>
+            <button id="disconnectBtn" disabled>终止聊天</button>
         </div>
     </div>
 
@@ -37,15 +39,8 @@
             </div>
 
             <div class="audio-controls">
-                <label>AI语音:</label>
-                <select id="voiceSelect">
-                    <option value="alloy">Alloy</option>
-                    <option value="echo">Echo</option>
-                    <option value="fable">Fable</option>
-                    <option value="onyx">Onyx</option>
-                    <option value="nova">Nova</option>
-                    <option value="shimmer">Shimmer</option>
-                </select>
+                <button id="stopAudioBtn">停止播放</button>
+                <button id="enableAudioBtn">启用音频</button>
             </div>
         </div>
     </div>

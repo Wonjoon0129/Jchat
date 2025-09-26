@@ -43,4 +43,21 @@ public class AiChatService {
         return content;
 
     }
+
+    /**
+     * 生成AI回复（流式）
+     */
+    public Flux<String> generateStreamResponse(String userMessage,Integer avatarId,String roomId) {
+        ChatClient chatClient = defaultArmoryStrategyFactory.chatClient(avatarId);
+
+        String chatId=avatarId+"_"+roomId;
+        Flux<String> content = chatClient.prompt(userMessage)
+                .system(s -> s.param("current_date", LocalDate.now().toString()))
+                .advisors(a -> a
+                        .param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 100))
+                .stream().content();
+        return content;
+
+    }
 }

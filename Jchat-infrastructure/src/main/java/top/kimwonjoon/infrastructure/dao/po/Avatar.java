@@ -42,6 +42,10 @@ public class Avatar {
      */
     private Integer modelId;
     /**
+     * 音色
+     */
+    private String Voice;
+    /**
      * 创建时间
      */
     private Date createTime;

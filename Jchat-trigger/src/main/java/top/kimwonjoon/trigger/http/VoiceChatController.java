@@ -7,6 +7,9 @@ package top.kimwonjoon.trigger.http;
  * @Date 2025/9/23 09:20
  */
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -14,6 +17,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import reactor.core.publisher.Flux;
 import top.kimwonjoon.api.dto.VoiceMessage;
 import top.kimwonjoon.domain.chat.service.chat.AiChatService;
 import top.kimwonjoon.domain.chat.service.preheat.AiAgentPreheatService;
@@ -29,10 +33,12 @@ public class VoiceChatController {
     @Resource
     private AiAgentPreheatService aiAgentPreheatService;
 
-
-    private final SimpMessagingTemplate messagingTemplate;
-    private final VoiceProcessingService voiceProcessingService;
-    private final AiChatService aiChatService;
+    @Resource
+    private SimpMessagingTemplate messagingTemplate;
+    @Resource
+    private VoiceProcessingService voiceProcessingService;
+    @Resource
+    private AiChatService aiChatService;
 
     public VoiceChatController(SimpMessagingTemplate messagingTemplate,
                                VoiceProcessingService voiceProcessingService,
@@ -77,57 +83,40 @@ public class VoiceChatController {
      * 处理语音数据
      */
     private void handleVoiceData(VoiceMessage message) {
+
+        // 转录语音为文本
+        String transcription = voiceProcessingService.transcribeAudio(
+                message.getAudioData()
+        );
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode;
         try {
-            // 1. 转录语音为文本
-            String transcription = voiceProcessingService.transcribeAudio(
-                    message.getAudioData()
-            );
-
-            log.info("语音转录结果: {}", transcription);
-            //显示语音输入
-            VoiceMessage transcriptionMessage = new VoiceMessage(
-                    VoiceMessage.MessageType.TRANSCRIPTION,
-                    message.getSender(),
-                    transcription
-            );
-            transcriptionMessage.setRoomId(message.getRoomId());
-
-            messagingTemplate.convertAndSend(
-                    "/topic/room/" + message.getRoomId(),
-                    transcriptionMessage
-            );
-
-            // 2. 生成AI回复
-            String aiResponse = aiChatService.generateResponse(transcription, Integer.valueOf(message.getAvatarId()),message.getRoomId() );
-
-            // 3. 将AI回复转换为语音
-            String audioResponse = voiceProcessingService.textToSpeech(aiResponse, "alloy");
-
-            // 5. 发送AI语音回复
-            VoiceMessage aiVoiceMessage = new VoiceMessage(
-                    VoiceMessage.MessageType.AI_RESPONSE,
-                    "AI Assistant",
-                    aiResponse
-            );
-            aiVoiceMessage.setAudioData(audioResponse);
-            aiVoiceMessage.setAudioFormat("mp3");
-            aiVoiceMessage.setRoomId(message.getRoomId());
-
-            messagingTemplate.convertAndSend(
-                    "/topic/room/" + message.getRoomId(),
-                    aiVoiceMessage
-            );
-
-        } catch (Exception e) {
-            log.error("处理语音数据时出错", e);
-            sendErrorMessage(message.getSender(), "处理语音数据失败: " + e.getMessage());
+            jsonNode = objectMapper.readTree(transcription);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        String textContent = jsonNode.get("output")
+                .get("choices")
+                .get(0)
+                .get("message")
+                .get("content")
+                .get(0)
+                .get("text")
+                .asText();
+        log.info("语音转录结果: {}", textContent);
+        message.setContent(textContent);
+        handleTextMessage(message);
     }
+
 
     /**
      * 处理文本消息
      */
     private void handleTextMessage(VoiceMessage message) {
+
+        Integer avatarId = Integer.valueOf(message.getAvatarId());
+        String voice=aiAgentPreheatService.getAvatarVoiceName(avatarId);
+        message.setType(VoiceMessage.MessageType.TEXT_MESSAGE);
         try {
             // 1. 广播文本消息
             messagingTemplate.convertAndSend(
@@ -136,26 +125,66 @@ public class VoiceChatController {
             );
 
             // 2. 生成AI回复
-            String aiResponse = aiChatService.generateResponse(message.getContent(), Integer.valueOf(message.getAvatarId()),message.getRoomId() );
+            Flux<String> aiResponse = aiChatService.generateStreamResponse(message.getContent(), Integer.valueOf(message.getAvatarId()),message.getRoomId() );
+            StringBuilder aiResponseBuilder = new StringBuilder();
+            // 3. 将AI回复转换为音频流
+            Flux<byte[]> audioStream = voiceProcessingService.textToSpeechStream(aiResponse,voice,aiResponseBuilder);
 
-            // 3. 将AI回复转换为语音
-            String audioResponse = voiceProcessingService.textToSpeech(aiResponse, "alloy");
+            // 4. 发送音频流到前端
+            audioStream
+                    .doOnNext(audioChunk -> {
+                        // 将音频数据编码为Base64发送到前端
+                        String base64Audio = Base64.getEncoder().encodeToString(audioChunk);
+
+                        VoiceMessage audioChunkMessage = new VoiceMessage(
+                                VoiceMessage.MessageType.AI_AUDIO_CHUNK,
+                                "AI Assistant",
+                                null
+                        );
+                        audioChunkMessage.setAudioData(base64Audio);
+                        audioChunkMessage.setAudioFormat("pcm");
+                        audioChunkMessage.setRoomId(message.getRoomId());
+
+                        messagingTemplate.convertAndSend(
+                                "/topic/room/" + message.getRoomId(),
+                                audioChunkMessage
+                        );
+                    })
+                    .doOnComplete(() -> {
+                        // 发送音频流结束信号
+                        VoiceMessage endMessage = new VoiceMessage(
+                                VoiceMessage.MessageType.AI_AUDIO_END,
+                                "AI Assistant",
+                                null
+                        );
+                        endMessage.setRoomId(message.getRoomId());
+
+                        messagingTemplate.convertAndSend(
+                                "/topic/room/" + message.getRoomId(),
+                                endMessage
+                        );
+
+                        //发送文本到前端
+                        VoiceMessage aiVoiceMessage = new VoiceMessage(
+                                VoiceMessage.MessageType.AI_RESPONSE,
+                                "AI Assistant",
+                                aiResponseBuilder.toString()
+                        );
+                        aiVoiceMessage.setRoomId(message.getRoomId());
+
+                        messagingTemplate.convertAndSend(
+                                "/topic/room/" + message.getRoomId(),
+                                aiVoiceMessage
+                        );
+                    })
+                    .doOnError(error -> {
+                        log.error("音频流处理出错", error);
+                        sendErrorMessage(message.getSender(), "音频流处理失败: " + error.getMessage());
+                    })
+                    .subscribe();
 
 
-            // 4. 发送AI语音回复
-            VoiceMessage aiVoiceMessage = new VoiceMessage(
-                    VoiceMessage.MessageType.AI_RESPONSE,
-                    "AI Assistant",
-                    aiResponse
-            );
-            aiVoiceMessage.setAudioData(audioResponse);
-            aiVoiceMessage.setAudioFormat("mp3");
-            aiVoiceMessage.setRoomId(message.getRoomId());
 
-            messagingTemplate.convertAndSend(
-                    "/topic/room/" + message.getRoomId(),
-                    aiVoiceMessage
-            );
 
         } catch (Exception e) {
             log.error("处理文本消息时出错", e);

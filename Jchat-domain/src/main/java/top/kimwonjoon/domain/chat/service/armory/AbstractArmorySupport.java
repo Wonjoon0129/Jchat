@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
 import top.kimwonjoon.domain.chat.adapter.repository.IAgentRepository;
 import top.kimwonjoon.domain.chat.service.armory.factory.DefaultArmoryStrategyFactory;
 
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeoutException;
  * @Date 2025. 5. 19. 10:27
  * @Version 1.0
  */
-
+@Service
 public abstract class AbstractArmorySupport extends AbstractMultiThreadStrategyRouter<Integer,DefaultArmoryStrategyFactory.DynamicContext,String> {
 
     private final Logger log = LoggerFactory.getLogger(AbstractArmorySupport.class);

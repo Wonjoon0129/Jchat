@@ -3,11 +3,6 @@ package top.kimwonjoon.config.properties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/**
- * @author Fuzhengwei bugstack.cn @小傅哥
- * @description Redis 连接配置 <a href="https://github.com/redisson/redisson/tree/master/redisson-spring-boot-starter">redisson-spring-boot-starter</a>
- * @create 2023-12-23 09:51
- */
 @Data
 @ConfigurationProperties(prefix = "redis.sdk.config", ignoreInvalidFields = true)
 public class RedisClientConfigProperties {

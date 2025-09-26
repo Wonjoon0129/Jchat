@@ -12,6 +12,7 @@ import com.aliyun.oss.model.PutObjectResult;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import top.kimwonjoon.domain.chat.service.voice.util.AudioUtil;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
@@ -55,9 +56,9 @@ public class VoiceProcessingService {
 
 
     /**
-     * 将文本转换为语音（非流式）
-     */
-    public String textToSpeech(String textStream, String voice) {
-        return AudioUtil.textToAudio(textStream, voice);
+     * 将文本转换为语音流（用于前端播放）
+    */
+    public Flux<byte[]> textToSpeechStream(Flux<String> textStream, String voice,StringBuilder aiResponseBuilder) {
+        return AudioUtil.textToAudioStream(textStream, voice,aiResponseBuilder);
     }
 }

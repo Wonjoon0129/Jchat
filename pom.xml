@@ -13,7 +13,6 @@
         <module>Jchat-domain</module>
         <module>Jchat-trigger</module>
         <module>Jchat-infrastructure</module>
-        <module>Jchat-types</module>
     </modules>
 
     <repositories>

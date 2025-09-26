@@ -122,12 +122,6 @@
             <version>3.15.1</version>
         </dependency>
         <!-- 系统模块 -->
-        <dependency>
-            <groupId>top.kimwonjoon</groupId>
-            <artifactId>Jchat-types</artifactId>
-        </dependency>
-
-
 
 
 

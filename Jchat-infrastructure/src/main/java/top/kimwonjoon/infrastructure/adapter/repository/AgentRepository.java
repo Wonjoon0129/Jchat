@@ -34,7 +34,7 @@ public class AgentRepository implements IAgentRepository {
         avatarVO.setDescription(avatar.getDescription());
         avatarVO.setCategory(avatar.getCategory());
         avatarVO.setSystemPrompt(avatar.getSystemPrompt());
-
+        avatarVO.setVoice(avatar.getVoice());
         return avatarVO;
     }
 
@@ -50,5 +50,11 @@ public class AgentRepository implements IAgentRepository {
         modelVO.setCompletionsPath(model.getCompletionsPath());
         return modelVO;
 
+    }
+
+    @Override
+    public String getAvatarVoiceName(Integer avatarId) {
+        Avatar avatar=avatarDao.queryById(avatarId);
+        return avatar.getVoice();
     }
 }

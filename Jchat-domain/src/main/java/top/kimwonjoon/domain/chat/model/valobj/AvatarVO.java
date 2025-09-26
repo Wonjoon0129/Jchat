@@ -32,6 +32,10 @@ public class AvatarVO {
      * 模型ID
      */
     private Integer modelId;
+    /**
+     * 音色
+     */
+    private String voice;
     
     /**
      * 分类
