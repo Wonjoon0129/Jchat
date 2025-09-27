@@ -1,9 +1,11 @@
 package top.kimwonjoon.trigger.http.admin;
 
+import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import top.kimwonjoon.infrastructure.dao.IAvatarDao;
 import top.kimwonjoon.infrastructure.dao.po.Avatar;
 
@@ -128,4 +130,5 @@ public class AvatarAdminController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
 }

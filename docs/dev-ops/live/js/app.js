@@ -73,9 +73,10 @@ class VoiceChatApp {
     generateRoomId() {
         const username = this.elements.username.value.trim();
         const avatarId = this.elements.avatarId.value.trim();
-        
+
         if (username && avatarId) {
             const roomId = `${username}_${avatarId}`;
+
             this.elements.roomId.value = roomId;
             return roomId;
         } else {
@@ -87,8 +88,7 @@ class VoiceChatApp {
     setupEventListeners() {
         this.elements.connectBtn.addEventListener('click', () => this.connect());
         this.elements.disconnectBtn.addEventListener('click', () => this.disconnect());
-        this.elements.recordBtn.addEventListener('click', () => this.startRecording());
-        this.elements.stopBtn.addEventListener('click', () => this.stopRecording());
+        this.elements.recordBtn.addEventListener('click', () => this.toggleRecording());
         this.elements.sendBtn.addEventListener('click', () => this.sendTextMessage());
         this.elements.stopAudioBtn = document.getElementById('stopAudioBtn');
         this.elements.enableAudioBtn = document.getElementById('enableAudioBtn');
@@ -123,6 +123,15 @@ class VoiceChatApp {
                 this.sendTextMessage();
             }
         });
+    }
+
+    // 新增：切换录音状态的方法
+    toggleRecording() {
+        if (this.isRecording) {
+            this.stopRecording();
+        } else {
+            this.startRecording();
+        }
     }
 
     async requestMicrophonePermission() {
@@ -669,13 +678,16 @@ class VoiceChatApp {
     }
 
     updateRecordingUI() {
-        this.elements.recordBtn.disabled = this.isRecording || !this.isConnected;
-        this.elements.stopBtn.disabled = !this.isRecording;
+        this.elements.recordBtn.disabled = !this.isConnected;
 
         if (this.isRecording) {
-            this.elements.recordingStatus.textContent = '🔴 录音中...';
+            this.elements.recordBtn.textContent = '⏹️ 发送';
+            this.elements.recordBtn.style.background = '#4bae4c';
+            this.elements.recordingStatus.textContent = '🔴 收集中...';
             this.elements.recordingStatus.className = 'recording-status recording';
         } else {
+            this.elements.recordBtn.textContent = '🎤 发送语音';
+            this.elements.recordBtn.style.background = '#4CAF50';
             this.elements.recordingStatus.textContent = '';
             this.elements.recordingStatus.className = 'recording-status';
         }

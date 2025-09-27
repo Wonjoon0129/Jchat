@@ -1,13 +1,9 @@
 package top.kimwonjoon.domain.chat.service.armory.node;
 
 import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
-import com.alibaba.dashscope.utils.JsonUtils;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
-import io.modelcontextprotocol.client.transport.ServerParameters;
-import io.modelcontextprotocol.client.transport.StdioClientTransport;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,24 +11,16 @@ import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
-import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import top.kimwonjoon.domain.chat.model.entity.TransportConfigStdio;
 import top.kimwonjoon.domain.chat.model.valobj.AvatarVO;
 import top.kimwonjoon.domain.chat.model.valobj.enums.AiAgentEnumVO;
 import top.kimwonjoon.domain.chat.service.armory.AbstractArmorySupport;
 import top.kimwonjoon.domain.chat.service.armory.factory.DefaultArmoryStrategyFactory;
-import top.kimwonjoon.domain.chat.service.armory.factory.element.RagAnswerAdvisor;
-import top.kimwonjoon.domain.chat.service.armory.factory.element.RagQueryTransformer;
 import top.kimwonjoon.domain.chat.service.armory.factory.element.RedisChatMemory;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component

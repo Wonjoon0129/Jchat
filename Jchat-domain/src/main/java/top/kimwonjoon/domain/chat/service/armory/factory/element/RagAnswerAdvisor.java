@@ -29,15 +29,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RagAnswerAdvisor implements BaseAdvisor {
 
-    private final RagQueryTransformer ragQueryTransformer;
     private final VectorStore vectorStore;
     private final SearchRequest searchRequest;
     private final String userTextAdvise;
 
-    public RagAnswerAdvisor(VectorStore vectorStore, SearchRequest searchRequest,RagQueryTransformer ragQueryTransformer) {
+    public RagAnswerAdvisor(VectorStore vectorStore, SearchRequest searchRequest) {
         this.vectorStore = vectorStore;
         this.searchRequest = searchRequest;
-        this.ragQueryTransformer=ragQueryTransformer;
         this.userTextAdvise = "";
     }
 
@@ -50,10 +48,7 @@ public class RagAnswerAdvisor implements BaseAdvisor {
 
 
         String query = (new PromptTemplate(userText)).render();
-        Query q = new Query(query);
-        Query transform = ragQueryTransformer.transform(q);
-
-        SearchRequest searchRequestToUse = SearchRequest.from(this.searchRequest).query(transform.text()).filterExpression(this.doGetFilterExpression(context)).build();
+        SearchRequest searchRequestToUse = SearchRequest.from(this.searchRequest).query(query).filterExpression(this.doGetFilterExpression(context)).build();
         List<Document> documents = this.vectorStore.similaritySearch(searchRequestToUse);
         context.put("qa_retrieved_documents", documents);
         for (Document document : documents) {
