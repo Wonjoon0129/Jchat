@@ -40,7 +40,7 @@ public class AgentRepository implements IAgentRepository {
 
     @Override
     public ModelVO queryModel(Integer avatarId) {
-        Model model=modelDao.queryById(avatarId);
+        Model model=modelDao.queryByAvatarId(avatarId);
         ModelVO modelVO=new ModelVO();
         modelVO.setId(model.getId());
         modelVO.setModelName(model.getModelName());

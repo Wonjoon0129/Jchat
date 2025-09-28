@@ -5,8 +5,9 @@ class VoiceChatApp {
         this.audioChunks = [];
         this.isRecording = false;
         this.isConnected = false;
-        this.serverUrl = 'http://localhost:8082/j-chat';
-        
+        this.serverUrl = 'http://117.72.40.188:8082/j-chat';
+
+
         // 流式音频播放相关 - 使用MediaSource
         this.audioContext = null;
         this.mediaSource = null;

@@ -54,4 +54,6 @@ public interface IModelDao {
      * @return 影响行数
      */
     int deleteById(Integer id);
+
+    Model queryByAvatarId(Integer avatarId);
 }

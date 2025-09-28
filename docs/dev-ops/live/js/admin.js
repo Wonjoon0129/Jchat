@@ -1,7 +1,7 @@
 // 管理后台JavaScript
 class AdminApp {
     constructor() {
-        this.baseUrl = 'http://localhost:8082/j-chat';
+        this.baseUrl = 'http://117.72.40.188:8082/j-chat';
         this.currentSection = 'dashboard';
         // 音色列表数据
         this.voiceOptions = [

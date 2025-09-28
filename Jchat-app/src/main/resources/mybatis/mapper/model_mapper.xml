@@ -49,4 +49,12 @@
         DELETE FROM model WHERE id = #{id}
     </delete>
 
+    <select id="queryByAvatarId" parameterType="java.lang.Integer" resultMap="ModelMap">
+        SELECT id, model_name, base_url, api_key, completions_path, model_version, create_time, update_time
+        FROM model
+        WHERE id = (select modelId from avatar where id = #{avatarId})
+    </select>
+
+
+
 </mapper>
