@@ -3,7 +3,6 @@
     是一个基于 SpringAi 的智能角色扮演聊天助手，让用户能够与历史名人、虚拟角色进行沉浸式对话交流。
 
 体验地址：https://jchat.kimwonjoon.top/
-后端地址：[https://jchat.kimwonjoon.top/admin](https://jchat.kimwonjoon.top/admin.html)
 
 ## 1. 目标用户分析
 ### 1.1 主要用户群体
